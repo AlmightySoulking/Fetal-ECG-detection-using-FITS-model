@@ -1,4 +1,4 @@
-import Fetal_data_loader
+from .old_Fetal_data_loader import data_loader
 import scipy.signal as sig
 from scipy.fft import fft, ifft
 from scipy.signal import butter, filtfilt # Import specific functions from scipy.signal

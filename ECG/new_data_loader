@@ -44,30 +44,20 @@ class data_loader:
         self.fs_fallback = fs_fallback
 
     def _parse_qrs(self, qrs_path):
-        # Try WFDB first (handles binary .qrs)
-        base = os.path.splitext(qrs_path)[0]  # remove .qrs
-        try:
-            import wfdb
-            if os.path.exists(qrs_path):
-                # Some files are named r01.edf.qrs; wfdb needs the record name without the .qrs
-                # wfdb.rdann accepts the “record” string exactly as the basename without .qrs
-                rec = os.path.basename(base)  # e.g. r01.edf
-                ann = wfdb.rdann(os.path.join(os.path.dirname(qrs_path), rec), 'qrs')
-                return np.unique(ann.sample.astype(int))
-        except Exception as e:
-            pass  # fall through to text fallback
-
-        # Fallback: naive text parse (works only if file is plain text)
         peaks = []
         if not os.path.exists(qrs_path):
             return np.array([], dtype=int)
         try:
-            with open(qrs_path, 'r', errors='ignore') as f:
+            with open(qrs_path, 'r') as f:
                 for line in f:
+                    line = line.strip()
+                    if not line:
+                        continue
                     toks = line.replace(',', ' ').split()
                     for t in toks:
                         if t.isdigit():
-                            peaks.append(int(t)); break
+                            peaks.append(int(t))
+                            break
         except:
             return np.array([], dtype=int)
         return np.unique(np.array(peaks, dtype=int))
